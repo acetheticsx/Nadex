@@ -76,3 +76,40 @@ html{scroll-behavior:smooth;scroll-padding-top:92px}body{background:var(--bg);fo
 @media(min-width:801px){.feature-card:nth-child(1),.feature-card:nth-child(2){min-height:330px}.feature-card:nth-child(3),.feature-card:nth-child(4){min-height:315px}.feature-card:nth-child(5){min-height:230px}}
 @media(max-width:800px){.feature-card,.feature-card:nth-child(1),.feature-card:nth-child(2),.feature-card:nth-child(5){padding:23px 20px}.card-spec{font-size:7px;gap:6px}.feature-card p{min-height:0}}
 @media(max-width:480px){.feature-card,.feature-card:nth-child(1),.feature-card:nth-child(2),.feature-card:nth-child(5){min-height:0;padding:22px 20px}.feature-icon{margin:12px 0 22px}.card-spec{font-size:8px}}
+
+
+/* Precision interaction layer: NADEX titanium / orange */
+html{scrollbar-color:#ff6a00 #080809;scrollbar-width:thin;overscroll-behavior-y:contain}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#080809;border-left:1px solid #242428}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#ff8a32 0%,#ff6a00 48%,#a84000 100%);border:2px solid #080809;border-radius:0}
+::-webkit-scrollbar-thumb:hover{background:#ff9a4e}
+::-webkit-scrollbar-corner{background:#080809}
+::selection{background:#ff6a00;color:#080808;text-shadow:none}
+::-moz-selection{background:#ff6a00;color:#080808}
+:where(a,button,summary,[role="button"],input,select,textarea){-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{position:relative;isolation:isolate}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.42;background:radial-gradient(ellipse at 14% 18%,#ff6a0012 0,transparent 34%),radial-gradient(ellipse at 84% 68%,#9ca3af0b 0,transparent 38%),linear-gradient(115deg,transparent 0 47%,#ffffff04 47.08%,transparent 47.2% 100%);background-size:150% 150%,160% 160%,100% 100%;animation:nadex-ambient 26s ease-in-out infinite alternate}
+body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.13;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:54px 54px;mask-image:linear-gradient(180deg,#000,transparent 92%);animation:nadex-grid-drift 34s linear infinite}
+@keyframes nadex-ambient{0%{background-position:0% 0%,100% 100%,0 0}100%{background-position:100% 70%,0% 20%,0 0}}
+@keyframes nadex-grid-drift{to{background-position:54px 54px,54px 54px}}
+:where(a,button,summary,[role="button"]){-webkit-tap-highlight-color:transparent}
+:where(a,button,.contact-list a,.back-top,.nav-cta,.feature-card){-webkit-tap-highlight-color:transparent}
+:where(a,button,summary,[role="button"]):active{filter:brightness(.88)}
+:where(a,button,summary,[role="button"]):focus-visible{outline:2px solid var(--orange);outline-offset:4px;box-shadow:0 0 0 5px #ff6a001c}
+.button,.nav-cta,.contact-list a,.faq-list details,.back-top{transition:transform .18s var(--ease),border-color .18s ease,background-color .18s ease,color .18s ease,box-shadow .18s ease}
+.button:active,.nav-cta:active,.contact-list a:active,.back-top:active{transform:translateY(1px) scale(.985)}
+.contact-list a:hover{border-color:#ff6a00;box-shadow:inset 3px 0 #ff6a00,0 8px 26px #0005}
+.faq-list details[open]{border-color:#55555b;box-shadow:inset 2px 0 var(--orange)}
+.faq-list summary{cursor:pointer;touch-action:manipulation}
+.menu-toggle{touch-action:manipulation}
+@media(prefers-reduced-motion:reduce){body:before,body:after{animation:none!important}html{scroll-behavior:auto}*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.feature-card,.contact-list a,.button,.nav-cta,.back-top{position:relative;overflow:hidden}
+.feature-card:focus-within{border-color:#ff6a00}
+.feature-card:before{filter:drop-shadow(0 0 4px #ff6a0055)}
+.feature-card:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+@media(hover:hover) and (pointer:fine){.feature-card:after{background:radial-gradient(180px circle at var(--pointer-x,50%) var(--pointer-y,50%),#ff6a0015,transparent 70%);transition:opacity .2s ease}.feature-card:hover:after{opacity:1}}
+.interaction-pulse{animation:nadex-tap-pulse .24s ease-out}
+@keyframes nadex-tap-pulse{0%{filter:brightness(.78)}55%{filter:brightness(1.16)}100%{filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){.interaction-pulse{animation:none}}

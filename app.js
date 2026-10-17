@@ -4,6 +4,30 @@
   const year = document.querySelector('#year');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons({ attrs: { 'stroke-width': 1.55, 'stroke-linecap': 'square', 'stroke-linejoin': 'miter' } }); }
+
+  // Lightweight interaction feedback; no dependencies and no layout-affecting listeners.
+  const interactiveSurfaces = document.querySelectorAll('.feature-card, .contact-list a, .button, .nav-cta, .back-top');
+  interactiveSurfaces.forEach(surface => {
+    surface.addEventListener('pointermove', event => {
+      if (event.pointerType === 'touch' || reduceMotion) return;
+      const rect = surface.getBoundingClientRect();
+      surface.style.setProperty('--pointer-x', `${event.clientX - rect.left}px`);
+      surface.style.setProperty('--pointer-y', `${event.clientY - rect.top}px`);
+    }, { passive: true });
+    surface.addEventListener('pointerleave', () => {
+      surface.style.removeProperty('--pointer-x');
+      surface.style.removeProperty('--pointer-y');
+    }, { passive: true });
+  });
+  document.addEventListener('click', event => {
+    const target = event.target.closest('a,button,summary,[role="button"]');
+    if (!target || reduceMotion) return;
+    target.classList.remove('interaction-pulse');
+    requestAnimationFrame(() => {
+      target.classList.add('interaction-pulse');
+      window.setTimeout(() => target.classList.remove('interaction-pulse'), 260);
+    });
+  });
   const header = document.querySelector('.site-header');
   if (year) year.textContent = String(new Date().getFullYear());
 
