@@ -1,4 +1,31 @@
 (() => {
+  // Copy Free Fire IDs without navigating away from the page.
+  document.querySelectorAll('[data-copy-uid]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const uid = button.getAttribute('data-copy-uid');
+      if (!uid) return;
+      const original = button.innerHTML;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(uid);
+        } else {
+          const field = document.createElement('textarea');
+          field.value = uid; field.setAttribute('readonly', '');
+          field.style.position = 'fixed'; field.style.opacity = '0';
+          document.body.appendChild(field); field.select();
+          const copied = document.execCommand('copy'); field.remove();
+          if (!copied) throw new Error('Clipboard unavailable');
+        }
+        button.classList.add('is-copied');
+        button.innerHTML = '<span>Copied!</span><span aria-hidden="true">✓</span>';
+        button.setAttribute('aria-label', 'Free Fire ID copied');
+        window.setTimeout(() => { button.innerHTML = original; button.classList.remove('is-copied'); button.setAttribute('aria-label', `Copy Free Fire ID ${uid}`); }, 1400);
+      } catch {
+        button.innerHTML = '<span>Copy failed</span><span aria-hidden="true">!</span>';
+        window.setTimeout(() => { button.innerHTML = original; }, 1400);
+      }
+    });
+  });
   const toggle = document.querySelector('.menu-toggle');
   const nav = document.querySelector('#primary-nav');
   const year = document.querySelector('#year');
