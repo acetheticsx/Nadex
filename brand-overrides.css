@@ -1,0 +1,16 @@
+@font-face{font-family:"GFF";src:url("https://typace.ace-base.cc/fonts/GFF.ttf") format("truetype");font-display:swap;font-weight:100 900}
+:root{color-scheme:dark;--bg:#000;--surface:#101012;--raised:#1b1b1f;--border:#303035;--text:#f3f3f3;--muted:#a4a4aa;--orange:#ff6a00;--gold:#ffb400;--metal:#d8d8d8;--display:"GFF",sans-serif;--body:"GFF",sans-serif}
+body{background:#000;font-family:"GFF",sans-serif}
+.site-header{background:#000}
+.hero-mark{width:min(100%,450px);filter:none}
+.brand img{object-fit:contain}
+.join-section{background:#101012;color:var(--text);border-block:1px solid var(--border)}
+.join-layout .eyebrow,.join-layout h2 span{color:var(--orange)}
+.join-copy{color:var(--muted)}
+.contact-list{border-color:var(--border)}
+.contact-list a{border-color:var(--border)}
+.contact-role{color:var(--muted)}
+.contact-arrow{color:var(--orange)}
+.button-primary{color:#090909;background:var(--orange);border-color:var(--orange)}
+.requirement-value{color:var(--metal)}
+@media(max-width:480px){.hero-mark{width:min(86%,350px)}}
