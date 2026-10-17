@@ -3,6 +3,7 @@
   const nav = document.querySelector('#primary-nav');
   const year = document.querySelector('#year');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons({ attrs: { 'stroke-width': 1.55, 'stroke-linecap': 'square', 'stroke-linejoin': 'miter' } }); }
   const header = document.querySelector('.site-header');
   if (year) year.textContent = String(new Date().getFullYear());
 
