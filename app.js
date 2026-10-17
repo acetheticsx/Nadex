@@ -3,7 +3,44 @@
   const nav = document.querySelector('#primary-nav');
   const year = document.querySelector('#year');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const header = document.querySelector('.site-header');
   if (year) year.textContent = String(new Date().getFullYear());
+
+  // The app bar reacts to scroll and exposes a lightweight reading-progress line.
+  let scrollFrame = 0;
+  const scrollMotion = () => {
+    scrollFrame = 0;
+    const doc = document.documentElement;
+    const maxScroll = Math.max(1, doc.scrollHeight - window.innerHeight);
+    const y = Math.max(0, window.scrollY || doc.scrollTop || 0);
+    if (header) {
+      header.classList.toggle('is-scrolled', y > 18);
+      header.style.setProperty('--scroll-progress', `${Math.min(100, y / maxScroll * 100)}%`);
+    }
+    if (reduceMotion) return;
+    const heroMark = document.querySelector('.hero-mark');
+    const hero = document.querySelector('.hero');
+    if (heroMark && hero) {
+      const range = Math.max(1, hero.offsetHeight * .9);
+      const progress = Math.max(0, Math.min(1, y / range));
+      heroMark.style.setProperty('--hero-scale', (1.055 - progress * .12).toFixed(3));
+      const frame = document.querySelector('.art-frame');
+      if (frame) frame.style.setProperty('--frame-scale', (1 + progress * .06).toFixed(3));
+    }
+    document.querySelectorAll('.feature-card').forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const distance = Math.min(1, Math.abs(center - window.innerHeight * .52) / (window.innerHeight * .85));
+      const scale = .975 + (1 - distance) * .035;
+      card.style.setProperty('--scroll-zoom', scale.toFixed(3));
+    });
+  };
+  const scheduleScrollMotion = () => {
+    if (!scrollFrame) scrollFrame = requestAnimationFrame(scrollMotion);
+  };
+  window.addEventListener('scroll', scheduleScrollMotion, { passive: true });
+  window.addEventListener('resize', scheduleScrollMotion, { passive: true });
+  scrollMotion();
 
   const closeMenu = () => {
     if (!toggle || !nav) return;
