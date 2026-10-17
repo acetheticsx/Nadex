@@ -29,6 +29,23 @@
     });
   });
   const header = document.querySelector('.site-header');
+  // Native anchor scrolling plus a sticky-header offset and sensible focus management.
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', event => {
+      const href = link.getAttribute('href');
+      if (!href || href === '#') return;
+      let target;
+      try { target = document.querySelector(href); } catch { return; }
+      if (!target) return;
+      event.preventDefault();
+      const headerHeight = header ? header.getBoundingClientRect().height : 0;
+      const top = target.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
+      window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? 'auto' : 'smooth' });
+      if (!target.matches('a,button,input,select,textarea,summary,[tabindex]')) target.setAttribute('tabindex', '-1');
+      window.setTimeout(() => { try { target.focus({ preventScroll: true }); } catch {} }, reduceMotion ? 0 : 350);
+      if (window.history && window.history.replaceState) window.history.replaceState(null, '', href);
+    });
+  });
   if (year) year.textContent = String(new Date().getFullYear());
 
   // The app bar reacts to scroll and exposes a lightweight reading-progress line.

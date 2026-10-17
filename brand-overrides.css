@@ -113,3 +113,21 @@ body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opac
 .interaction-pulse{animation:nadex-tap-pulse .24s ease-out}
 @keyframes nadex-tap-pulse{0%{filter:brightness(.78)}55%{filter:brightness(1.16)}100%{filter:brightness(1)}}
 @media(prefers-reduced-motion:reduce){.interaction-pulse{animation:none}}
+
+/* Consistent machined arrow language */
+.arrow-mark{display:inline-block;position:relative;width:1.05em;height:1.05em;flex:0 0 1.05em;vertical-align:-.13em;color:var(--orange);transition:transform .22s var(--ease),color .22s ease;}
+.arrow-external:before{content:"";position:absolute;right:.13em;top:.13em;width:.58em;height:.58em;border-top:1.5px solid currentColor;border-right:1.5px solid currentColor}
+.arrow-external:after{content:"";position:absolute;left:.12em;bottom:.1em;width:.68em;height:1.5px;background:currentColor;transform:rotate(-45deg);transform-origin:left center}
+.arrow-down:before,.arrow-up:before{content:"";position:absolute;left:50%;top:50%;width:.58em;height:.58em;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translate(-50%,-65%) rotate(45deg)}
+.arrow-up:before{transform:translate(-50%,-30%) rotate(225deg)}
+:where(a,button):hover .arrow-external{transform:translate(2px,-2px)}
+:where(a,button):hover .arrow-down{transform:translateY(3px)}
+:where(a,button):hover .arrow-up{transform:translateY(-3px)}
+/* Calm, responsive motion on all primary interactive surfaces */
+.nav>a,.brand,.text-link,.card-meta,.feature-icon,.contact-arrow,.faq-list summary,.back-top{transition:color .2s ease,background-color .2s ease,border-color .2s ease,transform .22s var(--ease),opacity .2s ease}
+.nav>a:not(.nav-cta):hover{transform:translateY(-2px)}
+.brand:hover img{transform:translateY(-1px) rotate(-2deg)}
+.brand img{transition:transform .24s var(--ease)}
+.text-link:hover{color:#fff}
+.faq-list summary span{display:inline-flex;transition:transform .22s var(--ease),color .2s ease}
+.faq-list details[open] summary span{transform:rotate(45deg);color:var(--orange)}
