@@ -3,7 +3,6 @@
   const nav = document.querySelector('#primary-nav');
   const year = document.querySelector('#year');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   if (year) year.textContent = String(new Date().getFullYear());
 
   const closeMenu = () => {
@@ -12,7 +11,6 @@
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', 'Open navigation');
   };
-
   if (toggle && nav) {
     toggle.addEventListener('click', () => {
       const open = toggle.getAttribute('aria-expanded') !== 'true';
@@ -22,42 +20,86 @@
     });
     nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') {
-        closeMenu();
-        toggle.focus();
-      }
+      if (event.key === 'Escape') { closeMenu(); toggle.focus(); }
     });
     document.addEventListener('click', event => {
       if (!nav.contains(event.target) && !toggle.contains(event.target)) closeMenu();
     });
   }
-
   if (reduceMotion || !('IntersectionObserver' in window)) return;
 
-  const revealTargets = [
+  const selectors = [
     '.hero-copy > .eyebrow', '.hero-copy > h1', '.hero-copy > .hero-subtitle',
     '.hero-copy > .hero-actions', '.hero-copy > .hero-stats', '.hero-art',
     '.section-heading', '.feature-card', '.rules-layout > div', '.rules-list li',
     '.requirement-item', '.join-layout > div', '.faq-list details', '.footer-main > *'
-  ].flatMap(selector => Array.from(document.querySelectorAll(selector)));
-
-  const uniqueTargets = [...new Set(revealTargets)];
-  uniqueTargets.forEach((element, index) => {
+  ];
+  const targets = [...new Set(selectors.flatMap(selector => [...document.querySelectorAll(selector)]))];
+  targets.forEach(element => {
     element.setAttribute('data-reveal', element.matches('.hero-art') ? 'scale' : 'up');
-    const group = element.parentElement;
-    const siblings = group ? Array.from(group.children).filter(child => uniqueTargets.includes(child)) : [];
-    const order = Math.max(0, siblings.indexOf(element));
-    element.style.setProperty('--reveal-delay', `${Math.min(order * 75, 300)}ms`);
+    const siblings = [...(element.parentElement?.children || [])].filter(child => targets.includes(child));
+    element.style.setProperty('--reveal-delay', `${Math.min(Math.max(0, siblings.indexOf(element)) * 75, 300)}ms`);
   });
 
-  requestAnimationFrame(() => document.documentElement.classList.add('motion-ready'));
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('is-visible');
-      observer.unobserve(entry.target);
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -48px 0px' });
+  const scrambleNodes = element => {
+    if (element.dataset.scrambleDone || element.dataset.scrambling) return;
+    if (!element.matches('h1,h2,h3,.eyebrow,.card-meta,.requirement-value,.contact-role')) return;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (node.nodeValue.trim()) nodes.push({ node, final: node.nodeValue });
+    }
+    if (!nodes.length) return;
+    element.dataset.scrambling = 'true';
+    const glyphs = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789/+-';
+    const length = nodes.reduce((sum, item) => sum + item.final.length, 0);
+    const start = performance.now();
+    const duration = Math.min(780, 340 + length * 5);
+    const paint = now => {
+      const progress = Math.min(1, (now - start) / duration);
+      let position = 0;
+      nodes.forEach(({node, final}) => {
+        let output = '';
+        for (let i = 0; i < final.length; i++, position++) {
+          const char = final[i];
+          if (char === ' ' || /[.,:!?/+-]/.test(char) || progress >= Math.min(1, (position / Math.max(1, length)) * .72 + .28)) output += char;
+          else output += glyphs[Math.floor(Math.random() * glyphs.length)];
+        }
+        node.nodeValue = output;
+      });
+      if (progress < 1) requestAnimationFrame(paint);
+      else { nodes.forEach(({node, final}) => node.nodeValue = final); delete element.dataset.scrambling; element.dataset.scrambleDone = 'true'; }
+    };
+    requestAnimationFrame(paint);
+  };
 
-  uniqueTargets.forEach(element => observer.observe(element));
+  requestAnimationFrame(() => document.documentElement.classList.add('motion-ready'));
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const element = entry.target;
+    element.classList.add('is-visible');
+    scrambleNodes(element);
+    element.querySelectorAll('h1,h2,h3,.eyebrow,.card-meta,.requirement-value,.contact-role').forEach(scrambleNodes);
+    observer.unobserve(element);
+  }), { threshold: 0.12, rootMargin: '0px 0px -42px 0px' });
+  targets.forEach(element => observer.observe(element));
+
+  const parallaxTargets = [...document.querySelectorAll('.hero-art,.section-heading,.feature-card,.rules-layout > div,.rules-list li,.requirement-item,.join-layout > div,.contact-list a')];
+  let frame = 0;
+  const updateParallax = () => {
+    frame = 0;
+    const viewport = window.innerHeight || 1;
+    parallaxTargets.forEach(element => {
+      const rect = element.getBoundingClientRect();
+      if (rect.bottom < -100 || rect.top > viewport + 100) return;
+      const centerOffset = (rect.top + rect.height / 2 - viewport / 2) / viewport;
+      const strength = element.matches('.hero-art,.section-heading') ? 15 : 8;
+      element.style.setProperty('--parallax-y', `${Math.max(-strength, Math.min(strength, centerOffset * -strength))}px`);
+    });
+  };
+  const scheduleParallax = () => { if (!frame) frame = requestAnimationFrame(updateParallax); };
+  window.addEventListener('scroll', scheduleParallax, { passive: true });
+  window.addEventListener('resize', scheduleParallax, { passive: true });
+  scheduleParallax();
 })();
