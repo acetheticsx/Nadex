@@ -1,3 +1,3 @@
 # GFF font asset
 
-Place the licensed `GFF.ttf` font file in this directory. The stylesheet expects `/fonts/GFF.ttf`. The binary font is intentionally not included because it was not supplied with the project and its licensing/source have not been verified. Until added, the display type falls back to a bold system font.
+The deployed stylesheet loads GFF from https://typace.ace-base.cc/fonts/GFF.ttf. A local GFF.ttf in this directory is optional for offline use and is not used by the deployed stylesheet. The font binary is not included because its source and licensing have not been verified.

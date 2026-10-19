@@ -14,7 +14,7 @@ Then open `http://localhost:8080`.
 
 ## GFF typeface
 
-Place the properly licensed `GFF.ttf` file at `fonts/GFF.ttf`. The site uses `@font-face` with `font-display: swap` and readable system fallbacks when the font file is not present. The font is not bundled because its source and web-embedding license have not been verified.
+The deployed stylesheet loads GFF from https://typace.ace-base.cc/fonts/GFF.ttf through brand-overrides.css. A local fonts/GFF.ttf is optional for offline use only and does not change the deployed font URL. The font is not bundled because its source and web-embedding license have not been verified.
 
 ## Design tokens
 
@@ -22,7 +22,7 @@ Colors, spacing, typography, motion, and layout tokens are defined in `styles.cs
 
 ## SEO / AEO / GEO
 
-The page includes a descriptive title and meta description, semantic headings, crawlable FAQ answers, Open Graph and Twitter metadata, a manifest, robots.txt, and truthful Organization JSON-LD with supplied Instagram profiles. Add a canonical URL and an absolute sitemap URL once the production domain is confirmed. Structured data and metadata do not guarantee indexing or rich results.
+The page includes a descriptive title and meta description, semantic headings, crawlable FAQ answers, Open Graph and Twitter metadata, a manifest, robots.txt, canonical metadata, a sitemap, and truthful Organization JSON-LD with supplied Instagram profiles. The canonical URL and sitemap are configured for https://nadex-prime.vercel.app/; update them only if the production domain changes. Structured data and metadata do not guarantee indexing or rich results.
 
 ## Features
 
@@ -35,7 +35,6 @@ The page includes a descriptive title and meta description, semantic headings, c
 
 ## Verification checklist
 
-- Confirm the deployed domain and add canonical metadata plus `sitemap.xml`.
 - Upload the licensed GFF font to `fonts/GFF.ttf`.
 - Test links, mobile navigation, contrast, and layout at small viewport widths.
 - Verify social preview metadata and structured data on the deployed URL.
