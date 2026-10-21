@@ -1,10 +1,12 @@
 (() => {
   // Copy Free Fire IDs without navigating away from the page.
   document.querySelectorAll('[data-copy-uid]').forEach(button => {
+    const original = button.innerHTML;
+    let resetTimer;
     button.addEventListener('click', async () => {
       const uid = button.getAttribute('data-copy-uid');
       if (!uid) return;
-      const original = button.innerHTML;
+      window.clearTimeout(resetTimer);
       try {
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(uid);
@@ -19,10 +21,10 @@
         button.classList.add('is-copied');
         button.innerHTML = '<span>Copied!</span><span aria-hidden="true">✓</span>';
         button.setAttribute('aria-label', 'Free Fire ID copied');
-        window.setTimeout(() => { button.innerHTML = original; button.classList.remove('is-copied'); button.setAttribute('aria-label', `Copy Free Fire ID ${uid}`); }, 1400);
+        resetTimer = window.setTimeout(() => { button.innerHTML = original; button.classList.remove('is-copied'); button.setAttribute('aria-label', `Copy Free Fire ID ${uid}`); }, 1400);
       } catch {
         button.innerHTML = '<span>Copy failed</span><span aria-hidden="true">!</span>';
-        window.setTimeout(() => { button.innerHTML = original; }, 1400);
+        resetTimer = window.setTimeout(() => { button.innerHTML = original; button.classList.remove('is-copied'); button.setAttribute('aria-label', `Copy Free Fire ID ${uid}`); }, 1400);
       }
     });
   });
