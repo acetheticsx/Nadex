@@ -3,7 +3,9 @@
   document.querySelectorAll('[data-copy-uid]').forEach(button => {
     const original = button.innerHTML;
     let resetTimer;
+    let copySequence = 0;
     button.addEventListener('click', async () => {
+      const sequence = ++copySequence;
       const uid = button.getAttribute('data-copy-uid');
       if (!uid) return;
       window.clearTimeout(resetTimer);
@@ -18,13 +20,15 @@
           const copied = document.execCommand('copy'); field.remove();
           if (!copied) throw new Error('Clipboard unavailable');
         }
+        if (sequence !== copySequence) return;
         button.classList.add('is-copied');
         button.innerHTML = '<span>Copied!</span><span aria-hidden="true">✓</span>';
         button.setAttribute('aria-label', 'Free Fire ID copied');
-        resetTimer = window.setTimeout(() => { button.innerHTML = original; button.classList.remove('is-copied'); button.setAttribute('aria-label', `Copy Free Fire ID ${uid}`); }, 1400);
+        resetTimer = window.setTimeout(() => { if (sequence !== copySequence) return; button.innerHTML = original; button.classList.remove('is-copied'); button.setAttribute('aria-label', `Copy Free Fire ID ${uid}`); }, 1400);
       } catch {
+        if (sequence !== copySequence) return;
         button.innerHTML = '<span>Copy failed</span><span aria-hidden="true">!</span>';
-        resetTimer = window.setTimeout(() => { button.innerHTML = original; button.classList.remove('is-copied'); button.setAttribute('aria-label', `Copy Free Fire ID ${uid}`); }, 1400);
+        resetTimer = window.setTimeout(() => { if (sequence !== copySequence) return; button.innerHTML = original; button.classList.remove('is-copied'); button.setAttribute('aria-label', `Copy Free Fire ID ${uid}`); }, 1400);
       }
     });
   });
@@ -37,13 +41,26 @@
   // Lightweight interaction feedback; no dependencies and no layout-affecting listeners.
   const interactiveSurfaces = document.querySelectorAll('.feature-card, .contact-list a, .button, .nav-cta, .back-top');
   interactiveSurfaces.forEach(surface => {
+    let pointerFrame = 0;
+    let latestPointer = null;
     surface.addEventListener('pointermove', event => {
       if (event.pointerType === 'touch' || reduceMotion) return;
-      const rect = surface.getBoundingClientRect();
-      surface.style.setProperty('--pointer-x', `${event.clientX - rect.left}px`);
-      surface.style.setProperty('--pointer-y', `${event.clientY - rect.top}px`);
+      latestPointer = event;
+      if (pointerFrame) return;
+      pointerFrame = requestAnimationFrame(() => {
+        pointerFrame = 0;
+        const current = latestPointer;
+        latestPointer = null;
+        if (!current) return;
+        const rect = surface.getBoundingClientRect();
+        surface.style.setProperty('--pointer-x', `${current.clientX - rect.left}px`);
+        surface.style.setProperty('--pointer-y', `${current.clientY - rect.top}px`);
+      });
     }, { passive: true });
     surface.addEventListener('pointerleave', () => {
+      if (pointerFrame) cancelAnimationFrame(pointerFrame);
+      pointerFrame = 0;
+      latestPointer = null;
       surface.style.removeProperty('--pointer-x');
       surface.style.removeProperty('--pointer-y');
     }, { passive: true });
@@ -128,7 +145,9 @@
     });
     nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') { closeMenu(); toggle.focus(); }
+      if (event.key !== 'Escape' || toggle.getAttribute('aria-expanded') !== 'true') return;
+      closeMenu();
+      if (toggle.getClientRects().length) toggle.focus();
     });
     document.addEventListener('click', event => {
       if (!nav.contains(event.target) && !toggle.contains(event.target)) closeMenu();
