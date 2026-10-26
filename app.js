@@ -1,7 +1,8 @@
 (() => {
   // Copy Free Fire IDs without navigating away from the page.
   document.querySelectorAll('[data-copy-uid]').forEach(button => {
-    const original = button.innerHTML;
+    const copyGlyph = '<svg class="copy-icon-svg" viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true"><rect x="7" y="3" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1.6"/><path d="M4 7H3v10h10v-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+    const original = `<span>${button.querySelector('span')?.textContent || ''}</span><span class="copy-icon" aria-hidden="true">${copyGlyph}</span>`;
     let resetTimer;
     let copySequence = 0;
     button.addEventListener('click', async () => {
@@ -75,6 +76,15 @@
     });
   });
   const header = document.querySelector('.site-header');
+  // Keep anchor destinations clear of the sticky header, including mobile browser viewports.
+  document.querySelectorAll('main section[id], #top').forEach(section => {
+    section.style.scrollMarginTop = 'calc(var(--site-header-height, 78px) + 16px)';
+  });
+  const syncHeaderHeight = () => {
+    if (header) document.documentElement.style.setProperty('--site-header-height', `${Math.ceil(header.getBoundingClientRect().height)}px`);
+  };
+  syncHeaderHeight();
+  window.addEventListener('resize', syncHeaderHeight, { passive: true });
   // Native anchor scrolling plus a sticky-header offset and sensible focus management.
   document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', event => {
