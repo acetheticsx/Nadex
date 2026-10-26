@@ -1,0 +1,45 @@
+name: Static site checks
+on:
+  push:
+  pull_request:
+jobs:
+  validate-static-site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate manifest, icons, sitemap, robots, and local assets
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import json, struct, xml.etree.ElementTree as ET
+
+          root = Path('.')
+          manifest = json.loads((root / 'site.webmanifest').read_text(encoding='utf-8'))
+          icons = manifest.get('icons', [])
+          assert any(i.get('sizes') == '192x192' for i in icons), '192x192 icon missing'
+          assert any(i.get('sizes') == '512x512' for i in icons), '512x512 icon missing'
+          assert any('maskable' in i.get('purpose', '') for i in icons), 'maskable icon missing'
+          for icon in icons:
+              path = root / icon['src'].lstrip('/')
+              assert path.is_file(), f"icon file missing: {path}"
+              data = path.read_bytes()[:24]
+              assert data[:8] == b'\x89PNG\r\n\x1a\n', f"not a PNG: {path}"
+              width, height = struct.unpack('>II', data[16:24])
+              expected = tuple(map(int, icon['sizes'].split('x')))
+              assert (width, height) == expected, f"{path}: expected {expected}, got {(width, height)}"
+          sitemap = ET.parse(root / 'sitemap.xml').getroot()
+          assert sitemap.tag.endswith('urlset'), 'invalid sitemap root'
+          assert 'Sitemap:' in (root / 'robots.txt').read_text(encoding='utf-8'), 'robots.txt must reference sitemap'
+          class Refs(HTMLParser):
+              def __init__(self): super().__init__(); self.refs = []
+              def handle_starttag(self, tag, attrs):
+                  for key, value in attrs:
+                      if key in ('href', 'src') and value: self.refs.append(value)
+          parser = Refs(); parser.feed((root / 'index.html').read_text(encoding='utf-8'))
+          for ref in parser.refs:
+              if ref.startswith('/') and not ref.startswith('//'):
+                  local = ref.split('?', 1)[0].split('#', 1)[0].lstrip('/')
+                  if local: assert (root / local).exists(), f"local asset missing: {ref}"
+          print(f'Validated {len(icons)} icons and {len(parser.refs)} HTML references.')
+          PY
