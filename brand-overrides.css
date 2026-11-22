@@ -152,3 +152,5 @@ body:after{opacity:.22;background-size:48px 48px;mask-image:linear-gradient(180d
 .copy-uid.is-copied{background:#1b261d;color:#d9ffe0;border-color:#69bd7a}
 .copy-uid.is-copied span:last-child{color:#69bd7a}
 @media(max-width:480px){.contact-id-row{align-items:center}.copy-uid{min-width:154px;min-height:44px;padding:10px 12px;font-size:12px}.contact-uid-label{font-size:8px}}
+
+@media(max-width:800px){.hero-art .art-frame{width:min(60vw,440px)}}
